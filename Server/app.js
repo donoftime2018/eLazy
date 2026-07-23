@@ -9,7 +9,7 @@ const { CrawlingAPI } = require('crawlbase');
 
 const selectors = require('./selectors.js')
 
-console.log(selectors)
+// console.log(selectors)
 
 dotenv.config()
 app.use(express.urlencoded({ extended: true }));
@@ -31,35 +31,35 @@ async function crawlPage(url)
 {
     console.time("crawling")
     console.log("Inside crawlPage")
-    const options = { ajax_wait: true, page_wait: 5000, country: "US", 
+    const options = { ajax_wait: true, page_wait: 5000, country: "US", scraper: "ebay-serp",
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
       'Accept-Language': 'en-US,en;q=0.9',
       'Content-Type': 'application/json',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept': 'text/html,application/json,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       'Connection': 'close'
     } };
     const response = await api.get(url, options);
     if (response.statusCode === 200) {
-        // console.log(response)
-        return response.body;
+        // console.log(response.body)
+        return JSON.parse(response.body);
     }
     console.error(`Request failed: ${response.statusCode}`);
     console.timeEnd("crawling")
     return null;
 }
 
-function parseSearch(html) {
+function parseSearch(json) {
     console.time("parse")
   console.log("Inside parseSearch")
-  const $ = cheerio.load(html);
+  const items = json.body.products
+//   console.log(items)
+//   const items = [];
 
-  const items = [];
-
-  const $results = Number($(selectors.SELECTORS.numberOfResults).first().text())
-  const $fewerWords = $("selectors.SELECTORS.fewerWordsNotice").text()
+  const results = json.body.resultCount
+//   const $fewerWords = $("selectors.SELECTORS.fewerWordsNotice").text()
   
-  console.log($results)
+  console.log(Number(results))
 //   console.log($fewerWords)
 //   console.log($(selectors.SELECTORS.results).text())
 //   console.log($(selectors.SELECTORS.pagination))
@@ -130,10 +130,13 @@ async function scrapePages(keyword, totalPages=1) {
   for (let page = 1; page <= totalPages; page++) {
     const url = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(keyword)}&_pgn=${page}`;
     console.log(url)
-    const html = await crawlPage(url);
-    if (html) {
-      fs.writeFileSync("ebay.html", html);
-      const pageItems = await parseSearch(html);
+    const json = await crawlPage(url);
+    if (json) {
+    fs.writeFileSync(
+        "ebay.json",
+        JSON.stringify(json, null, 2)
+    );
+      const pageItems = await parseSearch(json);
       all.push(...pageItems);
     }
   }
