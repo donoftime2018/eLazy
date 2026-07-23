@@ -31,7 +31,7 @@ async function crawlPage(url)
 {
     console.time("crawling")
     console.log("Inside crawlPage")
-    const options = { ajax_wait: true, page_wait: 5000,
+    const options = { ajax_wait: true, page_wait: 5000, country: "US", 
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
       'Accept-Language': 'en-US,en;q=0.9',
@@ -60,8 +60,8 @@ function parseSearch(html) {
   const $fewerWords = $("selectors.SELECTORS.fewerWordsNotice").text()
   
   console.log($results)
-  console.log($fewerWords)
-  console.log($(selectors.SELECTORS.results).text())
+//   console.log($fewerWords)
+//   console.log($(selectors.SELECTORS.results).text())
 //   console.log($(selectors.SELECTORS.pagination))
 //   console.log($(selectors.SELECTORS.fewerWordsNotice))
 //   console.log($(selectors.SELECTORS.currentPage))
@@ -70,15 +70,16 @@ function parseSearch(html) {
 
   $(selectors.SELECTORS.results+">"+selectors.SELECTORS.card ).each((index, el) => {
         console.log(index)
+          
+        if (index >= $results)
+            return;
+
         const card = $(el);
-        console.log(card.text())
+        // console.log(card.text())
         const title = card
             .find(selectors.SELECTORS.title)
             .text()
             .trim();
-        
-        if (index >= $results)
-            return;
 
         items.push({
             title: card
@@ -166,8 +167,8 @@ app.post("/api/data", async (req, res) => {
     }
 
     try {
-        const items = await scrapePages(query);
-        console.log(items);
+        const items = await scrapePages(query, totalPages);
+        // console.log(items);
         console.log(items.length)
         res.status(200).json({ items });
     } catch (err) {
