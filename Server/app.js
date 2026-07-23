@@ -60,8 +60,8 @@ function parseSearch(html) {
   const $fewerWords = $("selectors.SELECTORS.fewerWordsNotice").text()
   
   console.log($results)
-  console.log($fewerWords)
-  console.log($(selectors.SELECTORS.results).text())
+//   console.log($fewerWords)
+//   console.log($(selectors.SELECTORS.results).text())
 //   console.log($(selectors.SELECTORS.pagination))
 //   console.log($(selectors.SELECTORS.fewerWordsNotice))
 //   console.log($(selectors.SELECTORS.currentPage))
@@ -70,15 +70,16 @@ function parseSearch(html) {
 
   $(selectors.SELECTORS.results+">"+selectors.SELECTORS.card ).each((index, el) => {
         console.log(index)
+          
+        if (index >= $results)
+            return;
+
         const card = $(el);
-        console.log(card.text())
+        // console.log(card.text())
         const title = card
             .find(selectors.SELECTORS.title)
             .text()
             .trim();
-        
-        if (index >= $results)
-            return;
 
         items.push({
             title: card
@@ -166,8 +167,8 @@ app.post("/api/data", async (req, res) => {
     }
 
     try {
-        const items = await scrapePages(query);
-        console.log(items);
+        const items = await scrapePages(query, totalPages);
+        // console.log(items);
         console.log(items.length)
         res.status(200).json({ items });
     } catch (err) {
