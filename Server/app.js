@@ -45,7 +45,7 @@ async function crawlPage(url)
     const response = await api.get(url, options);
     if (response.statusCode === 200) {
         // console.log(response.body)
-        return response.body;
+        return JSON.parse(response.body);
     }
     console.error(`Request failed: ${response.statusCode}`);
     console.timeEnd("crawling")
@@ -136,8 +136,8 @@ async function scrapePages(keyword, totalPages=1) {
     const json = await crawlPage(url);
     if (json) {
     fs.writeFileSync(
-        "ebay.html",
-        // JSON.stringify(json, null, 2)
+        "ebay.json",
+        JSON.stringify(json, null, 2)
     );
       const pageItems = await parseSearch(json);
       all.push(...pageItems);
@@ -167,10 +167,11 @@ async function getItems(keyword)
     // console.log(oAuth.data.access_token)
 
     const items = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
-        params: { q: keyword },
+        params: { q: keyword},
         headers: {
             'Authorization': `Bearer ${oAuth.data.access_token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            "X-EBAY-C-MARKETPLACE-ID": "EBAY_US"
         }
     })
 
