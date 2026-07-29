@@ -24,7 +24,7 @@ app.use(cors());
 // app.use(bodyParser.json())
 // app.use(bodyParser.urlencoded({ extended: true }))
 
-console.log(process.env.CRAWLBASE_JS)
+// console.log(process.env.CRAWLBASE_JS)
 // console.log(process.env.APP_ID)
 // console.log(process.env.DEV_ID)
 
@@ -148,8 +148,8 @@ async function scrapePages(keyword, totalPages=1) {
 
 async function getItems(keyword)
 {
-    console.log(process.env.PROD_APP_ID)
-    console.log(process.env.PROD_CERT_ID)
+    // console.log(process.env.PROD_APP_ID)
+    // console.log(process.env.PROD_CERT_ID)
 
 
     // const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(keyword)}`  //`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(keyword)}&_pgn=${page}`;
@@ -164,7 +164,7 @@ async function getItems(keyword)
         'grant_type': 'client_credentials',
         'scope': 'https://api.ebay.com/oauth/api_scope'
     }), { headers })
-    console.log(oAuth.data.access_token)
+    // console.log(oAuth.data.access_token)
 
     const items = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
         params: { q: keyword },
