@@ -1,6 +1,7 @@
 const express = require('express');
 const cheerio = require('cheerio')
 const app = express();
+const axios = require('axios');
 const dotenv = require('dotenv')
 const fs = require('fs')
 const cors = require('cors')
@@ -24,6 +25,8 @@ app.use(cors());
 // app.use(bodyParser.urlencoded({ extended: true }))
 
 console.log(process.env.CRAWLBASE_JS)
+// console.log(process.env.APP_ID)
+// console.log(process.env.DEV_ID)
 
 const api = new CrawlingAPI({token: process.env.CRAWLBASE_JS})
 
@@ -42,7 +45,7 @@ async function crawlPage(url)
     const response = await api.get(url, options);
     if (response.statusCode === 200) {
         // console.log(response.body)
-        return JSON.parse(response.body);
+        return response.body;
     }
     console.error(`Request failed: ${response.statusCode}`);
     console.timeEnd("crawling")
@@ -128,13 +131,13 @@ function parseSearch(json) {
 async function scrapePages(keyword, totalPages=1) {
   const all = [];
   for (let page = 1; page <= totalPages; page++) {
-    const url = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(keyword)}&_pgn=${page}`;
+    const url = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(keyword)}&_pgn=${page}`  //`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(keyword)}&_pgn=${page}`;
     console.log(url)
     const json = await crawlPage(url);
     if (json) {
     fs.writeFileSync(
-        "ebay.json",
-        JSON.stringify(json, null, 2)
+        "ebay.html",
+        // JSON.stringify(json, null, 2)
     );
       const pageItems = await parseSearch(json);
       all.push(...pageItems);
@@ -143,6 +146,37 @@ async function scrapePages(keyword, totalPages=1) {
   return all;
 }
 
+async function getItems(keyword)
+{
+    console.log(process.env.PROD_APP_ID)
+    console.log(process.env.PROD_CERT_ID)
+
+
+    // const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(keyword)}`  //`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(keyword)}&_pgn=${page}`;
+    // console.log(url)
+
+    const headers = {
+         'Authorization': `Basic ${Buffer.from(`${process.env.PROD_APP_ID}:${process.env.PROD_CERT_ID}`).toString('base64')}`,
+         'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    const oAuth = await axios.post('https://api.ebay.com/identity/v1/oauth2/token', new URLSearchParams({
+        'grant_type': 'client_credentials',
+        'scope': 'https://api.ebay.com/oauth/api_scope'
+    }), { headers })
+    console.log(oAuth.data.access_token)
+
+    const items = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
+        params: { q: keyword },
+        headers: {
+            'Authorization': `Bearer ${oAuth.data.access_token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+
+
+    return items.data.itemSummaries
+}
 
 // async function main()
 // {
@@ -161,7 +195,7 @@ app.post("/api/data", async (req, res) => {
     console.log('Request body:', req.body);
     const { query, totalPages } = req.body
     console.log('Query:', query);
-    console.log('Total Pages:', totalPages);
+    // console.log('Total Pages:', totalPages);
 
 
     if (!query) {
@@ -170,9 +204,9 @@ app.post("/api/data", async (req, res) => {
     }
 
     try {
-        const items = await scrapePages(query, totalPages);
+        const items = await getItems(query)/// await scrapePages(query, totalPages);
         // console.log(items);
-        console.log(items.length)
+        // console.log(items.length)
         res.status(200).json({ items });
     } catch (err) {
         console.error(err);
