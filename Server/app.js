@@ -167,7 +167,7 @@ async function getItems(keyword)
     // console.log(oAuth.data.access_token)
 
     const items = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
-        params: { q: keyword},
+        params: { q: keyword, filter: "searchInDescription:true"},
         headers: {
             'Authorization': `Bearer ${oAuth.data.access_token}`,
             'Content-Type': 'application/json',
@@ -175,7 +175,8 @@ async function getItems(keyword)
         }
     })
 
-
+    // console.log(items)
+    
     return items.data.itemSummaries
 }
 
@@ -207,8 +208,8 @@ app.post("/api/data", async (req, res) => {
     try {
         const items = await getItems(query)/// await scrapePages(query, totalPages);
         // console.log(items);
-        console.log(items.length)
-        await scrapePages(query, totalPages)
+        // console.log(items.length)
+        // await scrapePages(query, totalPages)
         res.status(200).json({ items });
     } catch (err) {
         console.error(err);
