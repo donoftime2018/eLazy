@@ -71,59 +71,59 @@ function parseSearch(json) {
 //   console.log($(selectors.SELECTORS.title))
 //   console.log($(selectors.SELECTORS.price))
 
-  $(selectors.SELECTORS.results+">"+selectors.SELECTORS.card ).each((index, el) => {
-        console.log(index)
+//   $(selectors.SELECTORS.results+">"+selectors.SELECTORS.card ).each((index, el) => {
+//         console.log(index)
           
-        if (index >= $results)
-            return;
+//         if (index >= $results)
+//             return;
 
-        const card = $(el);
-        // console.log(card.text())
-        const title = card
-            .find(selectors.SELECTORS.title)
-            .text()
-            .trim();
+//         const card = $(el);
+//         // console.log(card.text())
+//         const title = card
+//             .find(selectors.SELECTORS.title)
+//             .text()
+//             .trim();
 
-        items.push({
-            title: card
-            .find(selectors.SELECTORS.title)
-            .text()
-            .split("Opens in a new window or tab")[0]
-            .trim(),
+//         items.push({
+//             title: card
+//             .find(selectors.SELECTORS.title)
+//             .text()
+//             .split("Opens in a new window or tab")[0]
+//             .trim(),
             
-            price: card
-                .find(selectors.SELECTORS.price)
-                // .first()
-                .text()
-                .trim(),
+//             price: card
+//                 .find(selectors.SELECTORS.price)
+//                 // .first()
+//                 .text()
+//                 .trim(),
 
-            condition: card
-                .find(selectors.SELECTORS.condition)
-                .text()
-                .trim(),
+//             condition: card
+//                 .find(selectors.SELECTORS.condition)
+//                 .text()
+//                 .trim(),
 
-            itemUrl: card
-                .find(selectors.SELECTORS.link)
-                .attr("href")
-                .split("?")[0],
+//             itemUrl: card
+//                 .find(selectors.SELECTORS.link)
+//                 .attr("href")
+//                 .split("?")[0],
 
-            bestOffer: card
-                .find(selectors.SELECTORS.bestOffer)
-                .text(),
+//             bestOffer: card
+//                 .find(selectors.SELECTORS.bestOffer)
+//                 .text(),
             
-            deliveryFee: card
-                .find(selectors.SELECTORS.deliveryFee)
-                .text(),
+//             deliveryFee: card
+//                 .find(selectors.SELECTORS.deliveryFee)
+//                 .text(),
 
-            shippingLocation:  card
-                .find(selectors.SELECTORS.location)
-                .text(),
+//             shippingLocation:  card
+//                 .find(selectors.SELECTORS.location)
+//                 .text(),
 
-            image: card
-                .find(selectors.SELECTORS.image)
-                .attr("src")
-        });
-    });
+//             image: card
+//                 .find(selectors.SELECTORS.image)
+//                 .attr("src")
+//         });
+//     });
     console.timeEnd("parse")
   return items;
 }
