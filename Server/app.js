@@ -207,7 +207,8 @@ app.post("/api/data", async (req, res) => {
     try {
         const items = await getItems(query)/// await scrapePages(query, totalPages);
         // console.log(items);
-        // console.log(items.length)
+        console.log(items.length)
+        await scrapePages(query, totalPages)
         res.status(200).json({ items });
     } catch (err) {
         console.error(err);
