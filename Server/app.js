@@ -146,7 +146,7 @@ async function scrapePages(keyword, totalPages=1) {
   return all;
 }
 
-async function getItems(keyword)
+async function getItems(keyword, includeDescription = false)
 {
     // console.log(process.env.PROD_APP_ID)
     // console.log(process.env.PROD_CERT_ID)
@@ -167,7 +167,7 @@ async function getItems(keyword)
     // console.log(oAuth.data.access_token)
 
     const items = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
-        params: { q: keyword, filter: "searchInDescription:true"},
+        params: { q: keyword, filter: includeDescription ? "searchInDescription:true" : undefined },
         headers: {
             'Authorization': `Bearer ${oAuth.data.access_token}`,
             'Content-Type': 'application/json',
@@ -195,8 +195,9 @@ async function getItems(keyword)
 app.post("/api/data", async (req, res) => {
   
     console.log('Request body:', req.body);
-    const { query, totalPages } = req.body
+    const { query, totalPages, desc } = req.body
     console.log('Query:', query);
+    console.log('Including description:', desc);
     // console.log('Total Pages:', totalPages);
 
 
@@ -206,7 +207,7 @@ app.post("/api/data", async (req, res) => {
     }
 
     try {
-        const items = await getItems(query)/// await scrapePages(query, totalPages);
+        const items = await getItems(query, desc)/// await scrapePages(query, totalPages);
         // console.log(items);
         // console.log(items.length)
         // await scrapePages(query, totalPages)
