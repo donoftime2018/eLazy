@@ -146,7 +146,7 @@ async function scrapePages(keyword, totalPages=1) {
   return all;
 }
 
-async function getItems(keyword, includeDescription = false)
+async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, newCond = false, includeDescription = false)
 {
     // console.log(process.env.PROD_APP_ID)
     // console.log(process.env.PROD_CERT_ID)
@@ -166,8 +166,19 @@ async function getItems(keyword, includeDescription = false)
     }), { headers })
     // console.log(oAuth.data.access_token)
 
+    console.log('Price Floor:', priceFloor)
+    console.log('Price Ceiling:', priceCeil)
+
+    const filters = [
+      includeDescription ? "searchInDescription:true" : undefined,
+      newCond ? "conditions:{NEW}" : undefined,
+      priceCeil > 0 && priceFloor == undefined ? `price:[..${priceCeil}],priceCurrency:USD`: undefined,
+      priceFloor > 0 && priceCeil == undefined ? `price:[${priceFloor}],priceCurrency:USD`: undefined,
+      priceFloor > 0 && priceCeil > 0 ? `price:[${priceFloor}..${priceCeil}],priceCurrency:USD`: undefined
+    ]
+
     const items = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
-        params: { q: keyword, filter: includeDescription ? "searchInDescription:true" : undefined },
+        params: { q: keyword, filter: filters.filter(f=>f!==undefined).join(',')},
         headers: {
             'Authorization': `Bearer ${oAuth.data.access_token}`,
             'Content-Type': 'application/json',
@@ -195,9 +206,13 @@ async function getItems(keyword, includeDescription = false)
 app.post("/api/data", async (req, res) => {
   
     console.log('Request body:', req.body);
-    const { query, totalPages, desc } = req.body
+    const { query, newCond, priceFloor, priceCeil, desc } = req.body
     console.log('Query:', query);
+    console.log('New Condition:', newCond)
     console.log('Including description:', desc);
+    console.log('Price Floor:', priceFloor)
+    console.log('Price Ceiling:', priceCeil)
+
     // console.log('Total Pages:', totalPages);
 
 
@@ -207,7 +222,7 @@ app.post("/api/data", async (req, res) => {
     }
 
     try {
-        const items = await getItems(query, desc)/// await scrapePages(query, totalPages);
+        const items = await getItems(query, priceCeil, priceFloor, newCond, desc)/// await scrapePages(query, totalPages);
         // console.log(items);
         // console.log(items.length)
         // await scrapePages(query, totalPages)
