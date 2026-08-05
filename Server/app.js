@@ -8,7 +8,8 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const { CrawlingAPI } = require('crawlbase');
 
-const selectors = require('./selectors.js')
+const selectors = require('./selectors.js');
+const { title } = require('process');
 
 // console.log(selectors)
 
@@ -186,11 +187,25 @@ async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, 
         }
     })
 
+    let titleRegex = ""
+    keyword.split(" ").forEach(element => {
+      titleRegex+=`(?=.*\\b${element}\\b)`
+    });
+    titleRegex+=".+"
+    titleRegex = new RegExp(titleRegex, 'gi')
+    // titleRegex = new RegExp(titleRegex)
+    console.log(titleRegex)
+    // console.log(items.data.itemSummaries)
+
     // console.log(items)
     
-    return items.data.itemSummaries
-}
+    // let filteredItems = items.data.itemSummaries.filter(item=>item.title.match(titleRegex))
 
+    // filteredItems.forEach((item)=>console.log(item['title']))
+
+    return items.data.itemSummaries.filter(item=>item['title'].match(titleRegex))
+      // titleRegex.match(item.title)==true)
+  }
 // async function main()
 // {
 //     try {
@@ -239,4 +254,4 @@ const server = app.listen(4000, () => {
 
 // server.setTimeout(0);          
 // server.headersTimeout = 600000; 
-// server.keepAliveTimeout = 610000;
+// server.keepAliveTimeout = 610000
