@@ -203,7 +203,7 @@ async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, 
 
     // filteredItems.forEach((item)=>console.log(item['title']))
 
-    return items.data.itemSummaries.filter(item=>item['title'].match(titleRegex))
+    return items.data.itemSummaries//.filter(item=>item['title'].match(titleRegex))
       // titleRegex.match(item.title)==true)
   }
 // async function main()
