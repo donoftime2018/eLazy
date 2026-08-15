@@ -8,7 +8,8 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const { CrawlingAPI } = require('crawlbase');
 
-const selectors = require('./selectors.js')
+const selectors = require('./selectors.js');
+const { title } = require('process');
 
 // console.log(selectors)
 
@@ -146,7 +147,7 @@ async function scrapePages(keyword, totalPages=1) {
   return all;
 }
 
-async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, newCond = false, includeDescription = false)
+async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, sortPrice=undefined, newCond = false, includeDescription = false)
 {
     // console.log(process.env.PROD_APP_ID)
     // console.log(process.env.PROD_CERT_ID)
@@ -168,6 +169,22 @@ async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, 
 
     console.log('Price Floor:', priceFloor)
     console.log('Price Ceiling:', priceCeil)
+    console.log("Sort Price:", sortPrice)
+
+    let sorting = undefined
+    if (sortPrice !== undefined)
+    {
+      if (sortPrice == 'asc')
+      {
+        sorting = 'price'
+      }
+      else
+      {
+        sorting='-price'
+      }
+    }
+
+    console.log("Sort Price:", sorting)
 
     const filters = [
       includeDescription ? "searchInDescription:true" : undefined,
@@ -178,7 +195,7 @@ async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, 
     ]
 
     const items = await axios.get('https://api.ebay.com/buy/browse/v1/item_summary/search', {
-        params: { q: keyword, filter: filters.filter(f=>f!==undefined).join(',')},
+        params: { q: keyword, filter: filters.filter(f=>f!==undefined).join(','), sort: sorting},
         headers: {
             'Authorization': `Bearer ${oAuth.data.access_token}`,
             'Content-Type': 'application/json',
@@ -186,11 +203,25 @@ async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, 
         }
     })
 
+    let titleRegex = ""
+    keyword.split(" ").forEach(element => {
+      titleRegex+=`(?=.*\\b${element}\\b)`
+    });
+    titleRegex+=".+"
+    titleRegex = new RegExp(titleRegex, 'gi')
+    // titleRegex = new RegExp(titleRegex)
+    console.log(titleRegex)
+    // console.log(items.data.itemSummaries)
+
     // console.log(items)
     
-    return items.data.itemSummaries
-}
+    // let filteredItems = items.data.itemSummaries.filter(item=>item.title.match(titleRegex))
 
+    // filteredItems.forEach((item)=>console.log(item['title']))
+
+    return items.data.itemSummaries//.filter(item=>item['title'].match(titleRegex))
+      // titleRegex.match(item.title)==true)
+  }
 // async function main()
 // {
 //     try {
@@ -206,8 +237,9 @@ async function getItems(keyword, priceCeil = undefined, priceFloor = undefined, 
 app.post("/api/data", async (req, res) => {
   
     console.log('Request body:', req.body);
-    const { query, newCond, priceFloor, priceCeil, desc } = req.body
+    const { query, newCond, priceFloor, priceCeil, sortPrice, desc } = req.body
     console.log('Query:', query);
+    console.log("Sort Price:", sortPrice)
     console.log('New Condition:', newCond)
     console.log('Including description:', desc);
     console.log('Price Floor:', priceFloor)
@@ -222,7 +254,7 @@ app.post("/api/data", async (req, res) => {
     }
 
     try {
-        const items = await getItems(query, priceCeil, priceFloor, newCond, desc)/// await scrapePages(query, totalPages);
+        const items = await getItems(query, priceCeil, priceFloor, sortPrice, newCond, desc)/// await scrapePages(query, totalPages);
         // console.log(items);
         // console.log(items.length)
         // await scrapePages(query, totalPages)
@@ -239,4 +271,4 @@ const server = app.listen(4000, () => {
 
 // server.setTimeout(0);          
 // server.headersTimeout = 600000; 
-// server.keepAliveTimeout = 610000;
+// server.keepAliveTimeout = 610000
