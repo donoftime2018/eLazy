@@ -144,9 +144,9 @@ async function browseAPI(keyword, limit = 0, priceCeil = undefined, priceFloor =
     }), { headers })
     // console.log(oAuth.data.access_token)
 
-    console.log('Price Floor:', priceFloor)
-    console.log('Price Ceiling:', priceCeil)
-    console.log("Sort Price:", sortPrice)
+    // console.log('Price Floor:', priceFloor)
+    // console.log('Price Ceiling:', priceCeil)
+    // console.log("Sort Price:", sortPrice)
 
     let sorting = undefined
     if (sortPrice !== undefined)
@@ -161,8 +161,8 @@ async function browseAPI(keyword, limit = 0, priceCeil = undefined, priceFloor =
       }
     }
 
-    console.log("Sort Price:", sorting)
-    console.log("Limit:", limit)
+    // console.log("Sort Price:", sorting)
+    // console.log("Limit:", limit)
 
 
     const filters = [
@@ -189,7 +189,7 @@ async function browseAPI(keyword, limit = 0, priceCeil = undefined, priceFloor =
     titleRegex+=".+"
     titleRegex = new RegExp(titleRegex, 'gi')
     // titleRegex = new RegExp(titleRegex)
-    console.log(titleRegex)
+    // console.log(titleRegex)
     // console.log(items.data.itemSummaries)
 
     // console.log(items)
@@ -205,13 +205,13 @@ async function browseAPI(keyword, limit = 0, priceCeil = undefined, priceFloor =
   async function getItems(req, res)
   {
       const { query, newCond, priceFloor, priceCeil, limit, sortPrice, desc } = req.body
-      console.log('Query:', query);
-      console.log("Sort Price:", sortPrice)
-      console.log('New Condition:', newCond)
-      console.log('Including description:', desc);
-      console.log('Price Floor:', priceFloor)
-      console.log('Price Ceiling:', priceCeil)
-      console.log("Limit:", limit)
+      // console.log('Query:', query);
+      // console.log("Sort Price:", sortPrice)
+      // console.log('New Condition:', newCond)
+      // console.log('Including description:', desc);
+      // console.log('Price Floor:', priceFloor)
+      // console.log('Price Ceiling:', priceCeil)
+      // console.log("Limit:", limit)
 
     // console.log('Total Pages:', totalPages);
 
